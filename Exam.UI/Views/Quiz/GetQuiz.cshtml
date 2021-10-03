@@ -1,0 +1,72 @@
+﻿@model Quiz
+
+<h2>@Model.Title</h2>
+<textarea id="description" class="form-control" rows="10" readonly>
+@Model.Description
+</textarea>
+<h2 class="my-3">SORULAR</h2>
+<div class="row">
+    @foreach (var item in Model.Questions)
+    {
+        <div class="col-6">
+            <div class="card">
+                <div class="card-header">
+                    @item.Text
+                </div>
+                <div class="card-body">
+                    <form id="options">
+                        <div class="form-group col-12">
+                            <input class="btn-check" type="radio" id="@(item.Id)-A" name="option" value="@(item.Id)" />
+                            <label id="lblA@(item.Id)" for="@(item.Id)-A">@item.OptionA</label>
+                        </div>
+                        <div class="form-group col-12">
+                            <input class="btn-check" type="radio" id="@(item.Id)-B" name="option" value="@(item.Id)" />
+                            <label id="lblB@(item.Id)" for="@(item.Id)-B">@item.OptionB</label>
+                        </div>
+                        <div class="form-group col-12">
+                            <input class="btn-check" type="radio" id="@(item.Id)-C" name="option" value="@(item.Id)" />
+                            <label id="lblC@(item.Id)" for="@(item.Id)-C">@item.OptionC</label>
+                        </div>
+                        <div class="form-group col-12">
+                            <input class="btn-check" type="radio" id="@(item.Id)-D" name="option" value="@(item.Id)" />
+                            <label id="lblD@(item.Id)" for="@(item.Id)-D">@item.OptionD</label>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+<button id="btnComplete" type="submit" class="btn btn-success my-3">Sınavı Tamamla</button>
+
+@section scripts{ 
+<script>
+    $("#btnComplete").click(function () {
+        var array = $.map($('input[name="option"]:checked'), function (c) { return c.id; })
+        console.log("array", array);
+
+        $.ajax({
+            type: "POST",
+            url: "/Quiz/CheckQuiz",
+            data: { answers: array },
+            success: function (response) {
+                console.log(response);
+                array.map((item) => {
+                    var index = item.indexOf('-');
+                    var id = Number(item.slice(0, index));
+                    var option = item.slice(index + 1);
+                    if (response.includes(id)) {
+                        $("#lbl" + option + id).css("background", "green");
+                    }
+                    else {
+                        $("#lbl" + option + id).css("background", "red");
+                    }
+                })
+            }
+        });
+    })
+
+
+
+</script>
+}

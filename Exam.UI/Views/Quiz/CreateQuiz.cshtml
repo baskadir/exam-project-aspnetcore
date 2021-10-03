@@ -1,0 +1,68 @@
+﻿@model QuizVM
+
+@{
+    var articles = TempData["articles"] as List<Article>;
+}
+
+<form asp-action="CreateQuiz" asp-controller="Quiz" method="post">
+    <div class="form-group">
+        <select id="selectedTitle" class="form-control" onchange="getDescription(this)">
+            <option value="-1">Makale seçin</option>
+            @foreach (var item in articles)
+            {
+                <option value="@item.Id">@item.Title</option>
+            }
+        </select>
+    </div>
+    <input type="hidden" id="selectedArticleId" asp-for="Quiz.ArticleId"/>
+    <input type="hidden" id="selectedArticleTitle" asp-for="Quiz.Title"/>
+    <div class="form-group">
+        <textarea placeholder="Makale içeriği" asp-for="Quiz.Description" class="form-control" id="description" rows="10" readonly></textarea>
+    </div>
+    @for (int i = 0; i < 4; i++)
+    {
+        <div class="form-group">
+            <textarea placeholder="Soru @(i+1)" class="form-control" asp-for="Quiz.Questions[i].Text"></textarea>
+        </div>
+        <div class="form-group">
+            <textarea placeholder="A)" class="form-control" asp-for="Quiz.Questions[i].OptionA"></textarea>
+        </div>
+        <div class="form-group">
+            <textarea placeholder="B)" class="form-control" asp-for="Quiz.Questions[i].OptionB"></textarea>
+        </div>
+        <div class="form-group">
+            <textarea placeholder="C)" class="form-control" asp-for="Quiz.Questions[i].OptionC"></textarea>
+        </div>
+        <div class="form-group">
+            <textarea placeholder="D)" class="form-control" asp-for="Quiz.Questions[i].OptionD"></textarea>
+        </div>
+
+        <div class="form-group">
+            <select class="form-control" asp-for="Quiz.Questions[i].CorrectAnswer">
+                <option value="-1">Doğru Şıkkı Seçin</option>
+                <option value="A">A</option>
+                <option value="B">B</option>
+                <option value="C">C</option>
+                <option value="D">D</option>
+            </select>
+        </div>
+    }
+    <button type="submit" class="btn btn-success">Sınav Ekle</button>
+</form>
+
+@section scripts {
+<script>
+    function getDescription(selected) {
+        var id = $("#selectedTitle").val();
+        $.ajax({
+            url: "/Quiz/GetArticle/" + id,
+            type: "GET",
+            success: function (response) {
+                $("#description").html(response.description);
+                $("#selectedArticleTitle").val(response.title);
+                $("#selectedArticleId").val(response.id);
+            }
+        })
+    }
+</script> 
+}
